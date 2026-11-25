@@ -1,33 +1,39 @@
 #!/usr/bin/env python3
-"""Invent a Word We Need — entry generator (make.fun).
+"""Invent a Word We Need — entry generator.
 
-Builds the single-line entry text, validates it against the competition
-gate (UTF-8, exactly one line, 1-140 characters), and writes it to
-/output/entry.txt.
+Writes the invented word entry to /output/entry.txt.
+Deterministic, no network, no dependencies.
 """
 
 import os
 
-ENTRY = (
+ENTRY_TEXT = (
     "pocketpat - the frantic pat-down of every pocket to confirm "
     "your phone, keys, and wallet are still there."
 )
-
+OUTPUT_PATH = "/output/entry.txt"
 MAX_CHARS = 140
 
 
+def build_entry_text():
+    """Assemble the single-line entry text from its parts."""
+    return ENTRY_TEXT
+
+
+def validate_entry(text):
+    """Check the entry against the competition gate."""
+    if not 1 <= len(text) <= MAX_CHARS:
+        raise ValueError("entry must be 1-%d characters" % MAX_CHARS)
+    if "\n" in text or "\r" in text:
+        raise ValueError("entry must be a single line")
+
+
 def main():
-    text = ENTRY.strip()
-    assert "\n" not in text, "entry must be a single line"
-    assert 1 <= len(text) <= MAX_CHARS, (
-        f"entry must be 1-{MAX_CHARS} chars, got {len(text)}"
-    )
-    os.makedirs("/output", exist_ok=True)
-    with open("/output/entry.txt", "w", encoding="utf-8") as f:
+    text = build_entry_text()
+    validate_entry(text)
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write(text + "\n")
-    print(f"entry: {text}")
-    print(f"chars: {len(text)}")
-    print(f"bytes: {len(text.encode('utf-8'))}")
 
 
 if __name__ == "__main__":
